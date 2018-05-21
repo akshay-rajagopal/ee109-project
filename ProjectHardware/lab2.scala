@@ -304,9 +304,17 @@ object ProjectSVM extends SpatialApp {
         Foreach(digits by 1) {i =>
           val y = mux(i == label, 1, -1)
           val alpha = mux(i == label, 10/k, 2/k)
+          val ywx = Reg[T](0)
+          Reduce(accum)(picSize by 1) {j
+            val el = y * W(i,j) * img_sram(j)
+          }{_ + _}
           val gk1_sram = SRAM[T](picSize)
           Foreach(picSize by 1){j =>
-            gk1_sram(j) = rho * W(i,j)
+            gk1_sram(j) = mux(select > 0, rho * W(i,j) + y * img_sram(j),rho * W(i,j))
+          }
+          val select = 1 - accum
+          Foreach(picSize by 1){j =>
+            W(i,j) = W(i,j) - alpha * gk1_sram(j)
           }
         }
       }
