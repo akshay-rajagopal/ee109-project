@@ -277,7 +277,9 @@ object ProjectSVM extends SpatialApp {
     // setArg(N,args(1).to[Int])
     // setArg(K,args(2).to[Int])
 
-    val rho = 0.25.to[T]
+    // val rho = 0.25.to[T]
+    val rho = 0.04.to[T]
+    val base_alpha = 0.0001.to[T]
 
     val train_data = (0::picSize, 0::numTrainImages){(i,j) => random[T](3)}
     val train_labels = (0::numTrainImages){i => 0.to[T]}
@@ -303,7 +305,8 @@ object ProjectSVM extends SpatialApp {
         val label = trainLabels(k)
         Foreach(digits by 1) {i =>
           val y = mux(i == label, 1, -1)
-          val alpha = mux(i == label, 10/k, 2/k)
+          //val alpha = mux(i == label, 10/k, 2/k)
+          val alpha = mux(i == label, 5*base_alpha, base_alpha)
           val ywx = Reg[T](0)
           Reduce(accum)(picSize by 1) {j
             val el = y * W(i,j) * img_sram(j)
@@ -317,46 +320,32 @@ object ProjectSVM extends SpatialApp {
             W(i,j) = W(i,j) - alpha * gk1_sram(j)
           }
         }
+
+      val errors = Reg[Int](0)
+      Foreach(testImages by 1){k =>
+        val img_sram = SRAM[T](picSize)
+        img_sram load testImages(k*picSize::(k+1)*picSize)
+        val label = testLabels(k)
+        val maxind = Reg[T](0)
+        Reduce(maxind)(digits by 1){ i =>
+          val res = Reg[T](0)
+          Reduce(res)(picSize by 1){j =>
+            W(i,j) * img_sram(j)
+          }{_ + _}
+        }{}
+        errors := mux(maxind == label, errors, errors + 1)
       }
 
-
-      // Foreach(K by tileK par outerPar){kk =>
-      //   val numel_k = min(tileK.to[Int], K - kk)
-      //   Foreach(M by tileM par innerPar){mm =>
-      //     val numel_m = min(tileM.to[Int], M - mm)
-      //     val tileA_sram = SRAM[T](tileM, tileK)
-      //     tileA_sram load a(mm::mm+numel_m, kk::kk+numel_k)
-      //     Foreach(N by tileN par innerPar){nn =>
-      //       val numel_n = min(tileN.to[Int], N - nn)
-      //       val tileB_sram = SRAM[T](tileK, tileN)
-      //       val tileC_sram = SRAM.buffer[T](tileM, tileN)
-      //       tileB_sram load b(kk::kk+numel_k, nn::nn+numel_n)
-      //       tileC_sram load c(mm::mm+numel_m, nn::nn+numel_n)
-
-      //       // Your code here
-      //       MemFold(tileC_sram)(0 until numel_k by 1){k =>
-      //         val tmp = SRAM[T](tileM,tileN)
-      //         Foreach(0 until numel_m by 1 par tileM) { i => 
-      //           Foreach(0 until numel_n by 1 par tileN) {j => 
-      //             tmp(i,j) = tileA_sram(i,k)*tileB_sram(k,j)
-      //           }
-      //         }
-      //         tmp
-      //       }{_+_}
-      //       c(mm::mm+numel_m, nn::nn+numel_n) store tileC_sram
-      //     }
-      //   }
-      // }
     }
 
-    val accel_matrix = getMatrix(c)
-    val gold_matrix = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) =>
-      Array.tabulate(args(2).to[Int]){k => a_data(i,k) * b_data(k,j)}.reduce{_+_}
-    }
+    val accel_matrix = getMatrix(W)
+    //val gold_matrix = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) =>
+    //  Array.tabulate(args(2).to[Int]){k => a_data(i,k) * b_data(k,j)}.reduce{_+_}
+    //}
 
-    printMatrix(accel_matrix, "Received: ")
-    printMatrix(gold_matrix, "Wanted: ")
-    val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
-    println("PASS: " + cksum + "(Lab2Part5GEMM)")
+    //printMatrix(accel_matrix, "Received: ")
+    //printMatrix(gold_matrix, "Wanted: ")
+    //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
+    //println("PASS: " + cksum + "(Lab2Part5GEMM)")
   }
 }

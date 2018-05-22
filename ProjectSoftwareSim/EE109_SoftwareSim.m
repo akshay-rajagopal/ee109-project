@@ -4,7 +4,7 @@ load('mnist_test_data.mat')
 n = 400;
 %randn('state',0);
 %w_true = randn(n,1); % 'true' weight vector
-rho = 1/4;
+rho = 1/25;
 iters_train = 60000;
 W = zeros(n,10);
 %w = zeros(n,1);
@@ -23,7 +23,7 @@ for k = 1:iters_train
         if (1 - y*w.'*x > 0)
             g_k = g_k - x*y;
         end
-        alpha_k = 2/(k);
+        alpha_k = 0.0001;
         if(y == 1)
            alpha_k = alpha_k * 5; 
         end
@@ -64,3 +64,16 @@ disp(['Accuracy: ' num2str(1-error)]);
 %figure
 %plot(1:iters,error_probs); title('Classifier Error Probability');
 %xlabel('k');
+%
+% cvx_begin
+%     variable w_opt(400,1)
+%     s = 0;
+%     for i = 1:iters_train
+%         y = -1;
+%         if(labels_train(i) == 0)
+%            y = 1;
+%         end
+%        s =  s + pos(1-y*w_opt.'*images_train(:,i));
+%     end
+%     minimize(s/iters_train + rho/2*w_opt.'*w)
+% cvx_end
