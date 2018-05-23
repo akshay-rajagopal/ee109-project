@@ -253,6 +253,11 @@ object Lab2Part5GEMM extends SpatialApp {
 // Digits SVM
 object ProjectSVM extends SpatialApp {
 
+  @struct class SVMResult(
+    margin: FixPt[TRUE,_8,_8],
+    digit: Int
+  )
+
   @virtualize
   def main() {
 
@@ -260,15 +265,20 @@ object ProjectSVM extends SpatialApp {
     val midPar = 2
     val innerPar = 2
 
-    type T = FixPt[TRUE,_24,_8]
+    type T = FixPt[TRUE,_4,_12]
     val tileM = 16
     val tileN = 16
     val tileK = 16
 
-    val picSize = 400
-    val numTrainImages = 60000.to[Int]
-    val numTestImages = 10000.to[Int]
-    val digits = 10.to[Int]
+    // val picSize = 400.to[Int]
+    // val numTrainImages = 60000.to[Int]
+    // val numTestImages = 10000.to[Int]
+    // val digits = 10.to[Int]
+    val picSize = 4.to[Int]
+    val numTrainImages = 2.to[Int]
+    val numTestImages = 1.to[Int]
+    val digits = 3.to[Int]
+
 
     // val M = ArgIn[Int]
     // val N = ArgIn[Int]
@@ -277,20 +287,34 @@ object ProjectSVM extends SpatialApp {
     // setArg(N,args(1).to[Int])
     // setArg(K,args(2).to[Int])
 
-    // val rho = 0.25.to[T]
-    val rho = 0.04.to[T]
-    val base_alpha = 0.0001.to[T]
+    val rho = 0.5.to[T]
+    //val rho = 0.04.to[T]
+    val base_alpha = 0.1.to[T]
+    //val base_alpha = 0.0001.to[T]
 
-    val train_data = (0::picSize, 0::numTrainImages){(i,j) => random[T](3)}
-    val train_labels = (0::numTrainImages){i => 0.to[T]}
-    val test_data = (0::picSize, 0::numTestImages){(i,j) => random[T](3)}
-    val test_labels = (0::numTestImages){i => 0.to[T]}
-    val W_init = (0::picSize, 0::digits){(i,j) => 0.to[T]}
-    val trainImages = DRAM[T](picSize, numTrainImages)
-    val trainLabels = DRAM[T](numTrainImages)
-    val testImages = DRAM[T](picSize, numTestImages)
-    val testLabels = DRAM[T](numTestImages)
-    val W = DRAM[T](picSize, digits)
+//    val train_data = (0::numTrainImages, 0::picSize){(i,j) => random[T](3)}
+//    val train_labels = (0::1, 0::numTrainImages){(i,j) => 0.to[Int]}
+//    val train_data = (0::numTrainImages, 0::picSize){(i,j) => 
+//	mux(i==0,mux(j==0,0.5.to[T],mux(j==1,0.to[T],mux(j==2,1.to[T],0.2.to[T]))),mux(j==0,0.7.to[T],mux(j==1,0.3.to[T],mux(j==2,0.to[T],0.5.to[T]))))
+//    }
+//    val train_labels = Array[Int](1,0)
+    val train_data = loadCSV2D[T]("images_train.csv",",")
+    val train_labels = loadCSV2D[T]("labels_train.csv",",")
+//    val test_data = (0::numTestImages, 0::picSize){(i,j) => random[T](3)}
+//    val test_labels = (0::1, 0::numTestImages){(i,j) => 0.to[Int]}
+//    val test_data = (0::numTestImages, 0::picSize){(i,j) => 
+//	mux(j==0,0.to[T],mux(j==1,0.to[T],mux(j==2,0.9.to[T],0.2.to[T])))
+//    }
+//    val test_labels = Array[Int](1)
+    val test_data = loadCSV2D[T]("images_test.csv",",")
+    val train_labels = loadCSV2D[T]("labels_test.csv",",")
+      
+    val W_init = (0::digits, 0::picSize){(i,j) => 0.to[T]}
+    val trainImages = DRAM[T](numTrainImages, picSize)
+    val trainLabels = DRAM[Int](numTrainImages)
+    val testImages = DRAM[T](numTestImages, picSize)
+    val testLabels = DRAM[Int](numTestImages)
+    val W = DRAM[T](digits, picSize)    
 
     setMem(trainImages, train_data)
     setMem(trainLabels, train_labels)
@@ -298,52 +322,72 @@ object ProjectSVM extends SpatialApp {
     setMem(testLabels, test_labels)
     setMem(W, W_init)
 
+    val argErrorsOut = ArgOut[Int]
     Accel {
-      Foreach(trainImages by 1){k =>
-        val img_sram = SRAM[T](picSize)
-        img_sram load trainImages(k*picSize::(k+1)*picSize)
-        val label = trainLabels(k)
+      val trainlabels_sram = SRAM[Int](numTrainImages)
+      trainlabels_sram load trainLabels(0::numTrainImages)
+      val W_sram = SRAM[T](digits, picSize)
+      W_sram load W(0::digits, 0::picSize)
+      Foreach(numTrainImages by 1){k =>
+        val img_sram = SRAM[T](1,picSize)
+        img_sram load trainImages(k::k+1, 0::picSize)
+        val label = Reg[Int](0)
+	label := trainlabels_sram(k)
         Foreach(digits by 1) {i =>
-          val y = mux(i == label, 1, -1)
-          //val alpha = mux(i == label, 10/k, 2/k)
-          val alpha = mux(i == label, 5*base_alpha, base_alpha)
+          val y = mux(i.to[Int] == label.value, 1.to[Int], -1.to[Int])
+          //val alpha = mux(i.to[Int] == label, 10/k, 2/k)
+          val alpha = mux(i.to[Int] == label.value, 5*base_alpha, base_alpha)
           val ywx = Reg[T](0)
-          Reduce(accum)(picSize by 1) {j
-            val el = y * W(i,j) * img_sram(j)
+          Reduce(ywx)(picSize by 1) {j =>
+            y.to[T] * W_sram(i,j) * img_sram(0,j)
           }{_ + _}
+          val select = 1 - ywx.value
           val gk1_sram = SRAM[T](picSize)
           Foreach(picSize by 1){j =>
-            gk1_sram(j) = mux(select > 0, rho * W(i,j) + y * img_sram(j),rho * W(i,j))
+            gk1_sram(j) = mux(select > 0, rho * W_sram(i,j) - y.to[T] * img_sram(0,j),rho * W_sram(i,j))
           }
-          val select = 1 - accum
           Foreach(picSize by 1){j =>
-            W(i,j) = W(i,j) - alpha * gk1_sram(j)
+            W_sram(i,j) = W_sram(i,j) - alpha * gk1_sram(j)
           }
         }
+      }
+      W(0::digits,0::picSize) store W_sram
 
       val errors = Reg[Int](0)
-      Foreach(testImages by 1){k =>
-        val img_sram = SRAM[T](picSize)
-        img_sram load testImages(k*picSize::(k+1)*picSize)
-        val label = testLabels(k)
-        val maxind = Reg[T](0)
-        Reduce(maxind)(digits by 1){ i =>
+      val testlabels_sram = SRAM[Int](numTestImages)
+      testlabels_sram load testLabels(0::numTestImages)
+      Foreach(numTestImages by 1){k =>
+        val img_sram = SRAM[T](1, picSize)
+        img_sram load testImages(k::k+1, 0::picSize)
+        val label = Reg[Int](0)
+	label := testlabels_sram(k)
+        val maxind = Reg[Int](0)
+        val maxval = Reg.buffer[T](0)
+	Reduce(maxval)(picSize by 1){j =>
+          W_sram(0,j) * img_sram(0,j)
+        }{_ + _}
+	
+
+        Sequential.Foreach(1 until digits by 1){ i =>
           val res = Reg[T](0)
           Reduce(res)(picSize by 1){j =>
-            W(i,j) * img_sram(j)
+            W_sram(i,j) * img_sram(0,j)
           }{_ + _}
-        }{}
-        errors := mux(maxind == label, errors, errors + 1)
+          maxval := mux(res.value >= maxval.value, res.value, maxval.value)
+          maxind := mux(res.value == maxval.value, i.to[Int], maxind.value)
+        }
+        errors := mux(maxind.value == label.value, errors.value, errors.value + 1)
       }
-
+      argErrorsOut := errors.value
     }
 
     val accel_matrix = getMatrix(W)
     //val gold_matrix = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) =>
     //  Array.tabulate(args(2).to[Int]){k => a_data(i,k) * b_data(k,j)}.reduce{_+_}
     //}
-
-    //printMatrix(accel_matrix, "Received: ")
+    val errorsResult = getArg(argErrorsOut)
+    println("Errors: " + errorsResult)
+    printMatrix(accel_matrix, "Received: ")
     //printMatrix(gold_matrix, "Wanted: ")
     //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
     //println("PASS: " + cksum + "(Lab2Part5GEMM)")

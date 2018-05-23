@@ -1,18 +1,17 @@
 clearvars;clc;close all
-load('mnist_training_data.mat')
-load('mnist_test_data.mat')
-n = 400;
-%randn('state',0);
-%w_true = randn(n,1); % 'true' weight vector
-rho = 1/25;
-iters_train = 60000;
-W = zeros(n,10);
-%w = zeros(n,1);
-%error_probs = zeros(1,iters);
-%diffs = zeros(1,iters);
+n = 4;
+iters_train = 2;
+rho = 1/2;
+digits = 3;
+W = zeros(n,digits);
+images_train = [0.5 0.7; 0 0.3; 1 0; 0.2 0.5];
+labels_train = [1 0];
+images_test = [0; 0; 0.9; 0];
+labels_test = [1];
+
 for k = 1:iters_train
     x = images_train(:,k);
-    for i = 1:10
+    for i = 1:digits
         w = W(:,i);
         g_k = rho * w;
         %x = images_train(:,k);
@@ -23,7 +22,7 @@ for k = 1:iters_train
         if (1 - y*w.'*x > 0)
             g_k = g_k - x*y;
         end
-        alpha_k = 0.0001;
+        alpha_k = 0.1;
         if(y == 1)
            alpha_k = alpha_k * 5; 
         end
@@ -31,14 +30,13 @@ for k = 1:iters_train
         %diffs(k) = 1/iters*sum(pos(ones(1,iters)-w.'*xys)) + rho/2*(w.'*w) - f_opt;
         %error_probs(k) = 1 - 1/iters*sum(pos(sign(w.'*xys)));
     end
+    disp('W = '); disp(W.');
 end
-%error_guesses = zeros(10,1);
 incorrects = 0;
-results = zeros(10,10);
-for j = 1:10000
+for j = 1
    x = images_test(:,j);
    maxval = W(:,1).'*x; maxind = 0;
-   for i = 2:10
+   for i = 2:digits
        if (W(:,i).'*x > maxval)
           maxval = W(:,i).'*x ;
           maxind = i-1;
@@ -47,7 +45,6 @@ for j = 1:10000
    if (maxind ~= labels_test(j))
       incorrects = incorrects + 1; 
    end
-   results(labels_test(j)+1,maxind+1) = results(labels_test(j)+1,maxind+1) + 1;
 %    for i = 1:10
 %        y = -1;
 %        if (labels_test(j) == (i-1))
@@ -58,24 +55,4 @@ for j = 1:10000
 %        end
 %    end
 end
-%error = error_guesses/10000;
-error = incorrects/10000;
-disp(['Accuracy: ' num2str(1-error)]);
-%semilogy(1:iters,diffs); title('Optimality Gap');
-%xlabel('k'); ylabel('log(f(x^{(k)}) - f*)');
-%figure
-%plot(1:iters,error_probs); title('Classifier Error Probability');
-%xlabel('k');
-%%
-cvx_begin
-    variable w_opt(400,1)
-    s = 0;
-    for i = 1:iters_train
-        y = -1;
-        if(labels_train(i) == 0)
-           y = 1;
-        end
-       s =  s + pos(1-y*w_opt.'*images_train(:,i));
-    end
-    minimize(s/iters_train + rho/2*w_opt.'*w)
-cvx_end
+disp(incorrects)

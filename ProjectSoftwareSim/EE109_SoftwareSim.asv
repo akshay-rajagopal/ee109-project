@@ -47,7 +47,7 @@ for j = 1:10000
    if (maxind ~= labels_test(j))
       incorrects = incorrects + 1; 
    end
-   results(labels_test(j)+1,maxind+1) = results(labels_test(j)+1,maxind+1) + 1;
+   results((labels_test(j)+1,10)
 %    for i = 1:10
 %        y = -1;
 %        if (labels_test(j) == (i-1))
@@ -66,16 +66,16 @@ disp(['Accuracy: ' num2str(1-error)]);
 %figure
 %plot(1:iters,error_probs); title('Classifier Error Probability');
 %xlabel('k');
-%%
-cvx_begin
-    variable w_opt(400,1)
-    s = 0;
-    for i = 1:iters_train
-        y = -1;
-        if(labels_train(i) == 0)
-           y = 1;
-        end
-       s =  s + pos(1-y*w_opt.'*images_train(:,i));
-    end
-    minimize(s/iters_train + rho/2*w_opt.'*w)
-cvx_end
+%
+% cvx_begin
+%     variable w_opt(400,1)
+%     s = 0;
+%     for i = 1:iters_train
+%         y = -1;
+%         if(labels_train(i) == 0)
+%            y = 1;
+%         end
+%        s =  s + pos(1-y*w_opt.'*images_train(:,i));
+%     end
+%     minimize(s/iters_train + rho/2*w_opt.'*w)
+% cvx_end
