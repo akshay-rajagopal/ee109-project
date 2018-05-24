@@ -265,57 +265,35 @@ object ProjectSVM extends SpatialApp {
     val midPar = 2
     val innerPar = 2
 
-    type T = FixPt[TRUE,_4,_12]
+    //type T = FixPt[TRUE,_4,_12]
+    type T = Float
     val tileM = 16
     val tileN = 16
     val tileK = 16
 
-    // val picSize = 400.to[Int]
-    // val numTrainImages = 60000.to[Int]
-    // val numTestImages = 10000.to[Int]
-    // val digits = 10.to[Int]
-    val picSize = 4.to[Int]
-    val numTrainImages = 2.to[Int]
-    val numTestImages = 1.to[Int]
-    val digits = 3.to[Int]
+    val picSize = 400.to[Int]
+    val numTrainImages = 60000.to[Int] // 600 for simulation
+    val numTestImages = 10000.to[Int] // 100 for simulation
+    val digits = 10.to[Int]
 
+    val rho = 0.04.to[T]
+    val base_alpha = 0.0001.to[T]
+    val success_alpha = 0.0005.to[T]
 
-    // val M = ArgIn[Int]
-    // val N = ArgIn[Int]
-    // val K = ArgIn[Int]
-    // setArg(M,args(0).to[Int])
-    // setArg(N,args(1).to[Int])
-    // setArg(K,args(2).to[Int])
-
-    val rho = 0.5.to[T]
-    //val rho = 0.04.to[T]
-    val base_alpha = 0.1.to[T]
-    //val base_alpha = 0.0001.to[T]
-
-//    val train_data = (0::numTrainImages, 0::picSize){(i,j) => random[T](3)}
-//    val train_labels = (0::1, 0::numTrainImages){(i,j) => 0.to[Int]}
-//    val train_data = (0::numTrainImages, 0::picSize){(i,j) => 
-//	mux(i==0,mux(j==0,0.5.to[T],mux(j==1,0.to[T],mux(j==2,1.to[T],0.2.to[T]))),mux(j==0,0.7.to[T],mux(j==1,0.3.to[T],mux(j==2,0.to[T],0.5.to[T]))))
-//    }
-//    val train_labels = Array[Int](1,0)
-    val train_data = loadCSV2D[T]("images_train.csv",",")
-    val train_labels = loadCSV2D[T]("labels_train.csv",",")
-//    val test_data = (0::numTestImages, 0::picSize){(i,j) => random[T](3)}
-//    val test_labels = (0::1, 0::numTestImages){(i,j) => 0.to[Int]}
-//    val test_data = (0::numTestImages, 0::picSize){(i,j) => 
-//	mux(j==0,0.to[T],mux(j==1,0.to[T],mux(j==2,0.9.to[T],0.2.to[T])))
-//    }
-//    val test_labels = Array[Int](1)
-    val test_data = loadCSV2D[T]("images_test.csv",",")
-    val train_labels = loadCSV2D[T]("labels_test.csv",",")
-      
+    // For testing, I used the '_med' files
+    val train_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_train_med.csv",",")
+    val train_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_train_med.csv",",")
+    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_test_med.csv",",")
+    val test_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_test_med.csv",",")
+  
     val W_init = (0::digits, 0::picSize){(i,j) => 0.to[T]}
     val trainImages = DRAM[T](numTrainImages, picSize)
     val trainLabels = DRAM[Int](numTrainImages)
     val testImages = DRAM[T](numTestImages, picSize)
     val testLabels = DRAM[Int](numTestImages)
-    val W = DRAM[T](digits, picSize)    
-
+    val W = DRAM[T](digits, picSize) 
+ 
+    println("Done Loading")
     setMem(trainImages, train_data)
     setMem(trainLabels, train_labels)
     setMem(testImages, test_data)
@@ -332,22 +310,23 @@ object ProjectSVM extends SpatialApp {
         val img_sram = SRAM[T](1,picSize)
         img_sram load trainImages(k::k+1, 0::picSize)
         val label = Reg[Int](0)
-	label := trainlabels_sram(k)
+        label := trainlabels_sram(k)
         Foreach(digits by 1) {i =>
           val y = mux(i.to[Int] == label.value, 1.to[Int], -1.to[Int])
           //val alpha = mux(i.to[Int] == label, 10/k, 2/k)
-          val alpha = mux(i.to[Int] == label.value, 5*base_alpha, base_alpha)
+          val alpha = mux(i.to[Int] == label.value, success_alpha, base_alpha)
           val ywx = Reg[T](0)
           Reduce(ywx)(picSize by 1) {j =>
-            y.to[T] * W_sram(i,j) * img_sram(0,j)
+            mux(W_sram(i,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T],mux(y > 0, W_sram(i,j) * img_sram(0,j), -W_sram(i,j) * img_sram(0,j)))
           }{_ + _}
-          val select = 1 - ywx.value
+          val select = 1.to[T] - ywx.value
           val gk1_sram = SRAM[T](picSize)
           Foreach(picSize by 1){j =>
-            gk1_sram(j) = mux(select > 0, rho * W_sram(i,j) - y.to[T] * img_sram(0,j),rho * W_sram(i,j))
+	    val rhoW = mux(W_sram(i,j) == 0.to[T], 0.to[T], rho * W_sram(i,j))
+            gk1_sram(j) = mux(select > 0 && img_sram(0,j) != 0.to[T], rhoW - y.to[T] * img_sram(0,j),rhoW)
           }
           Foreach(picSize by 1){j =>
-            W_sram(i,j) = W_sram(i,j) - alpha * gk1_sram(j)
+            W_sram(i,j) = mux(gk1_sram(j) == 0.to[T], W_sram(i,j) ,W_sram(i,j) - alpha * gk1_sram(j))
           }
         }
       }
@@ -364,14 +343,14 @@ object ProjectSVM extends SpatialApp {
         val maxind = Reg[Int](0)
         val maxval = Reg.buffer[T](0)
 	Reduce(maxval)(picSize by 1){j =>
-          W_sram(0,j) * img_sram(0,j)
+          mux(W_sram(0,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W_sram(0,j) * img_sram(0,j))
         }{_ + _}
 	
 
         Sequential.Foreach(1 until digits by 1){ i =>
           val res = Reg[T](0)
           Reduce(res)(picSize by 1){j =>
-            W_sram(i,j) * img_sram(0,j)
+            mux(W_sram(i,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W_sram(i,j) * img_sram(0,j))
           }{_ + _}
           maxval := mux(res.value >= maxval.value, res.value, maxval.value)
           maxind := mux(res.value == maxval.value, i.to[Int], maxind.value)
@@ -387,7 +366,7 @@ object ProjectSVM extends SpatialApp {
     //}
     val errorsResult = getArg(argErrorsOut)
     println("Errors: " + errorsResult)
-    printMatrix(accel_matrix, "Received: ")
+    //printMatrix(accel_matrix, "Received: ")
     //printMatrix(gold_matrix, "Wanted: ")
     //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
     //println("PASS: " + cksum + "(Lab2Part5GEMM)")

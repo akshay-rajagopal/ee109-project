@@ -1,7 +1,8 @@
 clearvars;clc;close all
 n = 4;
 iters_train = 2;
-rho = 1/2;
+%rho = 1/2;
+rho = 1/25;
 digits = 3;
 W = zeros(n,digits);
 images_train = [0.5 0.7; 0 0.3; 1 0; 0.2 0.5];
@@ -22,7 +23,7 @@ for k = 1:iters_train
         if (1 - y*w.'*x > 0)
             g_k = g_k - x*y;
         end
-        alpha_k = 0.1;
+        alpha_k = 0.0001;
         if(y == 1)
            alpha_k = alpha_k * 5; 
         end

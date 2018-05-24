@@ -5,7 +5,7 @@ n = 400;
 %randn('state',0);
 %w_true = randn(n,1); % 'true' weight vector
 rho = 1/25;
-iters_train = 60000;
+iters_train = 600;
 W = zeros(n,10);
 %w = zeros(n,1);
 %error_probs = zeros(1,iters);
@@ -35,7 +35,8 @@ end
 %error_guesses = zeros(10,1);
 incorrects = 0;
 results = zeros(10,10);
-for j = 1:10000
+iters_test = 100
+for j = 1:iters_test
    x = images_test(:,j);
    maxval = W(:,1).'*x; maxind = 0;
    for i = 2:10
@@ -59,7 +60,7 @@ for j = 1:10000
 %    end
 end
 %error = error_guesses/10000;
-error = incorrects/10000;
+error = incorrects/iters_test;
 disp(['Accuracy: ' num2str(1-error)]);
 %semilogy(1:iters,diffs); title('Optimality Gap');
 %xlabel('k'); ylabel('log(f(x^{(k)}) - f*)');
@@ -67,15 +68,15 @@ disp(['Accuracy: ' num2str(1-error)]);
 %plot(1:iters,error_probs); title('Classifier Error Probability');
 %xlabel('k');
 %%
-cvx_begin
-    variable w_opt(400,1)
-    s = 0;
-    for i = 1:iters_train
-        y = -1;
-        if(labels_train(i) == 0)
-           y = 1;
-        end
-       s =  s + pos(1-y*w_opt.'*images_train(:,i));
-    end
-    minimize(s/iters_train + rho/2*w_opt.'*w)
-cvx_end
+% cvx_begin
+%     variable w_opt(400,1)
+%     s = 0;
+%     for i = 1:iters_train
+%         y = -1;
+%         if(labels_train(i) == 0)
+%            y = 1;
+%         end
+%        s =  s + pos(1-y*w_opt.'*images_train(:,i));
+%     end
+%     minimize(s/iters_train + rho/2*w_opt.'*w)
+% cvx_end
