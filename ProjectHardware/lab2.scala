@@ -281,10 +281,10 @@ object ProjectSVM extends SpatialApp {
     val success_alpha = 0.0005.to[T]
 
     // For testing, I used the '_med' files
-    val train_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_train_med.csv",",")
-    val train_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_train_med.csv",",")
-    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_test_med.csv",",")
-    val test_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_test_med.csv",",")
+    val train_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_train.csv",",")
+    val train_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_train.csv",",")
+    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_test.csv",",")
+    val test_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_test.csv",",")
   
     val W_init = (0::digits, 0::picSize){(i,j) => 0.to[T]}
     val trainImages = DRAM[T](numTrainImages, picSize)
@@ -370,5 +370,116 @@ object ProjectSVM extends SpatialApp {
     //printMatrix(gold_matrix, "Wanted: ")
     //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
     //println("PASS: " + cksum + "(Lab2Part5GEMM)")
+  }
+}
+
+object ProjectNN extends SpatialApp {
+
+  @virtualize
+  def main() {
+
+    val outerPar = 1
+    val midPar = 2
+    val innerPar = 2
+
+    //type T = FixPt[TRUE,_4,_12]
+    type T = Float
+    val tileM = 16
+    val tileN = 16
+    val tileK = 16
+
+    val picSize = 784.to[Int]
+    val nhidden_1 = 1024.to[Int]
+    val numTestImages = 10000.to[Int] // 200 for simulation
+    val digits = 10.to[Int]
+
+    // For testing, I used the '_med' files
+    val W1_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/W1.csv",",")
+    val b1_data = loadCSV1D[T]("/home/akshayr2/ee109-project/ProjectHardware/b1.csv",",")
+    val W2_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/W2.csv",",")
+    val b2_data = loadCSV1D[T]("/home/akshayr2/ee109-project/ProjectHardware/b2.csv",",")
+    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/mnist_test_images_28.csv",",")
+    val test_labels = loadCSV1D[Int]("/home/akshayr2/ee109-project/ProjectHardware/mnist_test_labels_28.csv",",")
+
+    val testImages = DRAM[T](numTestImages, picSize)
+    val testLabels = DRAM[Int](numTestImages)
+    val W1 = DRAM[T](nhidden_1, picSize) 
+    val b1 = DRAM[T](nhidden_1)
+    val W2 = DRAM[T](digits, nhidden_1)
+    val b2 = DRAM[T](digits)
+
+    val probs1 = DRAM[T](digits)    
+ 
+    println("Done Loading")
+    setMem(testImages, test_data)
+    setMem(testLabels, test_labels)
+    setMem(W1, W1_data)
+    setMem(b1, b1_data)
+    setMem(W2, W2_data)
+    setMem(b2, b2_data)
+
+
+    val argErrorsOut = ArgOut[Int]
+    Accel {
+      val b1_sram = SRAM[T](nhidden_1)
+      b1_sram load b1(0::nhidden_1)
+      val b2_sram = SRAM[T](digits)
+      b2_sram load b2(0::digits)
+      val W2_sram = SRAM[T](digits, nhidden_1)
+      W2_sram load W2(0::digits, 0::nhidden_1)
+
+      val W1_neuron = SRAM[T](1,picSize)
+
+      val errors = Reg[Int](0)
+      val testlabels_sram = SRAM[Int](numTestImages)
+      testlabels_sram load testLabels(0::numTestImages)
+      Foreach(1 by 1){k =>
+        val img_sram = SRAM[T](1, picSize)
+        img_sram load testImages(k::k+1, 0::picSize)
+        val label = Reg[Int](0)
+        label := testlabels_sram(k)
+
+        val inter = SRAM[T](nhidden_1)
+        Foreach(nhidden_1 by 1){ i =>
+          W1_neuron load W1(i::i+1,0::picSize)
+          val res = Reg[T](0)
+          Reduce(res)(picSize by 1){j =>
+            mux(W1_neuron(0,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W1_neuron(0,j) * img_sram(0,j))
+          }{_ + _}
+          inter(i) = max(res.value + b1_sram(i), 0.to[T])
+        }
+
+        val probs = SRAM[T](digits)
+        Foreach(digits by 1){ i =>
+          val res = Reg[T](0)
+          Reduce(res)(nhidden_1 by 1){j =>
+            mux(inter(j) == 0.to[T] || W2_sram(i,j) == 0.to[T], 0.to[T], W2_sram(i,j) * inter(j))
+          }{_ + _}
+          probs(i) = res.value + b2_sram(i)
+        }
+        
+        probs1(0::digits) store probs
+
+        val maxind = Reg.buffer[Int](0)
+        val maxval = Reg.buffer[T](0)
+        maxind := 0.to[Int]
+        maxval := probs(0)
+	
+
+        Sequential.Foreach(1 until digits by 1){ i =>
+          val oldval = maxval.value
+          maxval := mux(probs(i) > oldval, probs(i), oldval)
+          maxind := mux(probs(i) > oldval, i.to[Int], maxind.value)
+        }
+        println("Max val: " + maxval.value)
+        println("Max ind: " + maxind.value)
+        errors := mux(maxind.value == label.value, errors.value, errors.value + 1)
+      }
+      argErrorsOut := errors.value
+    }
+    val errorsResult = getArg(argErrorsOut)
+    println("Errors: " + errorsResult)
+    val logit = getMem(probs1);
+    printArray(logit, "Logit");
   }
 }

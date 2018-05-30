@@ -5,7 +5,7 @@ n = 400;
 %randn('state',0);
 %w_true = randn(n,1); % 'true' weight vector
 rho = 1/25;
-iters_train = 600;
+iters_train = 60000;
 W = zeros(n,10);
 %w = zeros(n,1);
 %error_probs = zeros(1,iters);
@@ -35,7 +35,7 @@ end
 %error_guesses = zeros(10,1);
 incorrects = 0;
 results = zeros(10,10);
-iters_test = 100
+iters_test = 10000;
 for j = 1:iters_test
    x = images_test(:,j);
    maxval = W(:,1).'*x; maxind = 0;
