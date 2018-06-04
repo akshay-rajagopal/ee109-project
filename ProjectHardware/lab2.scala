@@ -1,82 +1,6 @@
 import spatial.dsl._
 import org.virtualized._
 
-
-// GEMM
-object Lab2Part5GEMM extends SpatialApp {
-
-  @virtualize
-  def main() {
-
-    val outerPar = 1
-    val midPar = 2
-    val innerPar = 2
-
-    type T = FixPt[TRUE,_24,_8]
-    val tileM = 16
-    val tileN = 16
-    val tileK = 16
-
-    val M = ArgIn[Int]
-    val N = ArgIn[Int]
-    val K = ArgIn[Int]
-    setArg(M,args(0).to[Int])
-    setArg(N,args(1).to[Int])
-    setArg(K,args(2).to[Int])
-
-    val a_data = (0::args(0).to[Int], 0::args(2).to[Int]){(i,j) => random[T](3)}
-    val b_data = (0::args(2).to[Int], 0::args(1).to[Int]){(i,j) => random[T](3)}
-    val c_init = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) => 0.to[T]}
-    val a = DRAM[T](M, K)
-    val b = DRAM[T](K, N)
-    val c = DRAM[T](M, N)
-
-    setMem(a, a_data)
-    setMem(b, b_data)
-    setMem(c, c_init)
-
-    Accel {
-      Foreach(K by tileK par outerPar){kk =>
-        val numel_k = min(tileK.to[Int], K - kk)
-        Foreach(M by tileM par innerPar){mm =>
-          val numel_m = min(tileM.to[Int], M - mm)
-          val tileA_sram = SRAM[T](tileM, tileK)
-          tileA_sram load a(mm::mm+numel_m, kk::kk+numel_k)
-          Foreach(N by tileN par innerPar){nn =>
-            val numel_n = min(tileN.to[Int], N - nn)
-            val tileB_sram = SRAM[T](tileK, tileN)
-            val tileC_sram = SRAM.buffer[T](tileM, tileN)
-            tileB_sram load b(kk::kk+numel_k, nn::nn+numel_n)
-            tileC_sram load c(mm::mm+numel_m, nn::nn+numel_n)
-
-            // Your code here
-            MemFold(tileC_sram)(0 until numel_k by 1){k =>
-              val tmp = SRAM[T](tileM,tileN)
-              Foreach(0 until numel_m by 1 par tileM) { i => 
-                Foreach(0 until numel_n by 1 par tileN) {j => 
-                  tmp(i,j) = tileA_sram(i,k)*tileB_sram(k,j)
-                }
-              }
-              tmp
-            }{_+_}
-            c(mm::mm+numel_m, nn::nn+numel_n) store tileC_sram
-          }
-        }
-      }
-    }
-
-    val accel_matrix = getMatrix(c)
-    val gold_matrix = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) =>
-      Array.tabulate(args(2).to[Int]){k => a_data(i,k) * b_data(k,j)}.reduce{_+_}
-    }
-
-    printMatrix(accel_matrix, "Received: ")
-    printMatrix(gold_matrix, "Wanted: ")
-    val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
-    println("PASS: " + cksum + "(Lab2Part5GEMM)")
-  }
-}
-
 // Digits SVM
 object ProjectSVM extends SpatialApp {
 
@@ -99,15 +23,15 @@ object ProjectSVM extends SpatialApp {
     val tileK = 16
 
     val picSize = 400.to[Int]
-    //val numTrainImages = 60000.to[Int] // 600 for simulation
-    //val numTestImages = 10000.to[Int] // 100 for simulation
-    val numTrainImages = 600.to[Int] // 600 for simulation
-    val numTestImages = 100.to[Int] // 100 for simulation
+    val numTrainImages = 60000.to[Int] // 600 for simulation
+    val numTestImages = 10000.to[Int] // 100 for simulation
+    //val numTrainImages = 600.to[Int] // 600 for simulation
+    //val numTestImages = 100.to[Int] // 100 for simulation
     val digits = 10.to[Int]
 
     val rho = 0.04.to[T]
-    val base_alpha = 0.001.to[T]
-    val success_alpha = 0.005.to[T]
+    val base_alpha = 0.0001.to[T]
+    val success_alpha = 0.0005.to[T]
 
     // For testing, I used the '_med' files
     val train_data = loadCSV2D[T]("images_train.csv",",")
