@@ -257,7 +257,7 @@ object ProjectNN extends SpatialApp {
       val errors = Reg[Int](0)
       val testlabels_sram = SRAM[Int](numTestImages)
       testlabels_sram load testLabels(0::numTestImages)
-      Foreach(200 by 1){k =>
+      Sequential.Foreach(numTestImages by 1){k =>
         val img_sram = SRAM[T](1, picSize)
         img_sram load testImages(k::k+1, 0::picSize)
         val label = Reg[Int](0)
