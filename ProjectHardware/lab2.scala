@@ -2,179 +2,6 @@ import spatial.dsl._
 import org.virtualized._
 
 
-// MemReduce
-object Lab2Part1SimpleMemReduce extends SpatialApp {
-
-  val N = 16.to[Int]
-
-  @virtualize
-  def main() {
-    val out = DRAM[Int](16)
-    Accel {
-      val a = SRAM[Int](16)
-      MemReduce(a)(-5 until 5 by 1){i =>
-        val tmp = SRAM[Int](16)
-        Foreach(16 by 1) { j => tmp(j) = 1}
-        tmp
-      }{_+_}
-      out store a
-    }
-
-    val result = getMem(out)
-    val gold = Array.tabulate(16){i => 10.to[Int]}
-    printArray(gold, "expected: ")
-    printArray(result, "result:   ")
-
-    val cksum = gold.zip(result){_==_}.reduce{_&&_}
-    println("PASS: " + cksum + " (Lab2Part1SimpleMemReduce)")
-  }
-}
-
-
-// MemFold
-object Lab2Part2SimpleMemFold extends SpatialApp {
-
-  val N = 16.to[Int]
-
-  @virtualize
-  def main() {
-    val out = DRAM[Int](16)
-    Accel {
-      val a = SRAM[Int](16)
-      Foreach(16 by 1) { j => a(j) = 0}
-      MemFold(a)(-5 until 5 by 1){i =>
-        val tmp = SRAM[Int](16)
-        Foreach(16 by 1) { j => tmp(j) = 1}
-        tmp
-      }{_+_}
-      out store a
-    }
-
-    val result = getMem(out)
-    val gold = Array.tabulate(16){i => 10.to[Int]}
-    printArray(gold, "expected: ")
-    printArray(result, "result:   ")
-
-    val cksum = gold.zip(result){_==_}.reduce{_&&_}
-    println("PASS: " + cksum + " (Lab2Part2SimpleMemFold)")
-  }
-}
-
-
-// FSM
-object Lab2Part3BasicCondFSM extends SpatialApp { // Regression (Unit) // Args: none
-
-
-  @virtualize
-  def main() {
-    val dram = DRAM[Int](32)
-    Accel {
-      val bram = SRAM[Int](32)
-      val reg = Reg[Int](0)
-      reg := 16
-      FSM[Int]{state => state < 32} { state =>
-        if (state < 16) {
-          if (state < 8) {
-            bram(31 - state) = state // 16:31 [7, 6, ... 0]
-          } else {
-            bram(31 - state) = state+1 // 16:31 [16, 15, ... 9]
-          }
-        }
-        else {
-          bram(state - 16) = if (state == 16) 17 else if (state == 17) reg.value else state // Test const, regread, and bound Mux1H
-        }
-      }{state => state + 1}
-
-      dram(0::32) store bram
-    }
-    val result = getMem(dram)
-    val gold = Array[Int](17, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                          29, 30, 31, 16, 15, 14, 13, 12, 11, 10, 9, 7, 6, 5, 4, 3, 2, 1, 0)
-    printArray(result, "Result")
-    printArray(gold, "Gold")
-    val cksum = gold.zip(result){_ == _}.reduce{_&&_}
-    println("PASS: " + cksum + " (Lab2Part3BasicCondFSM)")
-  }
-}
-
-
-
-// FSMAlt
-object Lab2Part3BasicCondFSMAlt extends SpatialApp {
-
-  @virtualize
-  def main() {
-    val dram = DRAM[Int](32)
-    Accel {
-      val bram = SRAM[Int](32)
-      val reg = Reg[Int](0)
-      reg := 16
-      FSM[Int]{state => state < 32} { state =>
-        if (state < 8) {
-            bram(state) = state 
-        } else if (state < 16) {
-            bram(state) = state*2 
-        } else if (state < 24) {
-            bram(state) = state*3
-        } else {
-          bram(state) = state*4
-        }
-      }{state => state + 1}
-
-      dram(0::32) store bram      
-    }
-    val result = getMem(dram)
-    val gold = Array[Int](0, 1, 2, 3, 4, 5, 6, 7, 16, 18, 20, 22, 24,
-                          26, 28, 30, 48, 51, 54, 57, 60, 63, 66, 69,
-                          96, 100, 104, 108, 112, 116, 120, 124)
-    printArray(result, "Result")
-    printArray(gold, "Gold")
-    val cksum = gold.zip(result){_ == _}.reduce{_&&_}
-    println("PASS: " + cksum + " (Lab2Part3BasicCondFSMAlt)")
-  }
-}
-
-
-object Lab2Part4LUT extends SpatialApp {
-  @virtualize
-  def main() {
-    type T = Int
-    val M = 3
-    val N = 3
-
-    val in = ArgIn[T]
-    val out = ArgOut[T]
-    val i = ArgIn[T]
-    val j = ArgIn[T]
-
-    val input = args(0).to[T]
-    val ind_i = args(1).to[T]
-    val ind_j = args(2).to[T]
-
-    setArg(in, input)
-    setArg(i, ind_i)
-    setArg(j, ind_j)
-
-    Accel {
-      // Your code here
-      val inVal = in.value
-      val iVal = i.value
-      val jVal = j.value
-      
-      val lut = LUT[T](3,3)(1,2,3,4,5,6,7,8,9)
-      val lut_ij = lut(iVal,jVal)
-      out := inVal + lut_ij
-    }
-
-    val result = getArg(out)
-    val goldArray = Array.tabulate(M * N){ i => i + 1 }
-    val gold = input + goldArray(i*N + j)
-    val pass = gold == result
-    println("PASS: " + pass + "(Lab2Part4LUT)")
-  }
-}
-
-
 // GEMM
 object Lab2Part5GEMM extends SpatialApp {
 
@@ -254,7 +81,7 @@ object Lab2Part5GEMM extends SpatialApp {
 object ProjectSVM extends SpatialApp {
 
   @struct class SVMResult(
-    margin: FixPt[TRUE,_8,_8],
+    margin: FixPt[TRUE,_8,_24],
     digit: Int
   )
 
@@ -265,26 +92,28 @@ object ProjectSVM extends SpatialApp {
     val midPar = 2
     val innerPar = 2
 
-    //type T = FixPt[TRUE,_4,_12]
-    type T = Float
+    type T = FixPt[TRUE,_8,_24]
+    //type T = Float
     val tileM = 16
     val tileN = 16
     val tileK = 16
 
     val picSize = 400.to[Int]
-    val numTrainImages = 60000.to[Int] // 600 for simulation
-    val numTestImages = 10000.to[Int] // 100 for simulation
+    //val numTrainImages = 60000.to[Int] // 600 for simulation
+    //val numTestImages = 10000.to[Int] // 100 for simulation
+    val numTrainImages = 600.to[Int] // 600 for simulation
+    val numTestImages = 100.to[Int] // 100 for simulation
     val digits = 10.to[Int]
 
     val rho = 0.04.to[T]
-    val base_alpha = 0.0001.to[T]
-    val success_alpha = 0.0005.to[T]
+    val base_alpha = 0.001.to[T]
+    val success_alpha = 0.005.to[T]
 
     // For testing, I used the '_med' files
-    val train_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_train.csv",",")
-    val train_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_train.csv",",")
-    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/images_test.csv",",")
-    val test_labels = loadCSV2D[Int]("/home/akshayr2/ee109-project/ProjectHardware/labels_test.csv",",")
+    val train_data = loadCSV2D[T]("images_train.csv",",")
+    val train_labels = loadCSV2D[Int]("labels_train.csv",",")
+    val test_data = loadCSV2D[T]("images_test.csv",",")
+    val test_labels = loadCSV2D[Int]("labels_test.csv",",")
   
     val W_init = (0::digits, 0::picSize){(i,j) => 0.to[T]}
     val trainImages = DRAM[T](numTrainImages, picSize)
@@ -317,20 +146,20 @@ object ProjectSVM extends SpatialApp {
           val alpha = mux(i.to[Int] == label.value, success_alpha, base_alpha)
           val ywx = Reg[T](0)
           Reduce(ywx)(picSize by 1) {j =>
-            mux(W_sram(i,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T],mux(y > 0, W_sram(i,j) * img_sram(0,j), -W_sram(i,j) * img_sram(0,j)))
+            y.to[T] * W_sram(i,j) * img_sram(0,j)
           }{_ + _}
           val select = 1.to[T] - ywx.value
           val gk1_sram = SRAM[T](picSize)
           Foreach(picSize by 1){j =>
-	    val rhoW = mux(W_sram(i,j) == 0.to[T], 0.to[T], rho * W_sram(i,j))
-            gk1_sram(j) = mux(select > 0 && img_sram(0,j) != 0.to[T], rhoW - y.to[T] * img_sram(0,j),rhoW)
+            gk1_sram(j) = mux(select > 0 , rho * W_sram(i,j) - y.to[T] * img_sram(0,j), rho * W_sram(i,j))
           }
           Foreach(picSize by 1){j =>
-            W_sram(i,j) = mux(gk1_sram(j) == 0.to[T], W_sram(i,j) ,W_sram(i,j) - alpha * gk1_sram(j))
+            W_sram(i,j) = W_sram(i,j) - alpha * gk1_sram(j)
           }
         }
       }
       W(0::digits,0::picSize) store W_sram
+      Foreach(digits by 1){i=>println(W_sram(i,19))}
 
       val errors = Reg[Int](0)
       val testlabels_sram = SRAM[Int](numTestImages)
@@ -339,18 +168,18 @@ object ProjectSVM extends SpatialApp {
         val img_sram = SRAM[T](1, picSize)
         img_sram load testImages(k::k+1, 0::picSize)
         val label = Reg[Int](0)
-	label := testlabels_sram(k)
+        label := testlabels_sram(k)
         val maxind = Reg[Int](0)
         val maxval = Reg.buffer[T](0)
-	Reduce(maxval)(picSize by 1){j =>
-          mux(W_sram(0,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W_sram(0,j) * img_sram(0,j))
+        Reduce(maxval)(picSize by 1){j =>
+          W_sram(0,j) * img_sram(0,j)
         }{_ + _}
 	
 
         Sequential.Foreach(1 until digits by 1){ i =>
           val res = Reg[T](0)
           Reduce(res)(picSize by 1){j =>
-            mux(W_sram(i,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W_sram(i,j) * img_sram(0,j))
+            W_sram(i,j) * img_sram(0,j)
           }{_ + _}
           maxval := mux(res.value >= maxval.value, res.value, maxval.value)
           maxind := mux(res.value == maxval.value, i.to[Int], maxind.value)
@@ -367,6 +196,7 @@ object ProjectSVM extends SpatialApp {
     val errorsResult = getArg(argErrorsOut)
     println("Errors: " + errorsResult)
     //printMatrix(accel_matrix, "Received: ")
+    
     //printMatrix(gold_matrix, "Wanted: ")
     //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
     //println("PASS: " + cksum + "(Lab2Part5GEMM)")
@@ -379,11 +209,10 @@ object ProjectNN extends SpatialApp {
   def main() {
 
     val outerPar = 1
-    val midPar = 2
-    val innerPar = 2
+    val midPar = 16
+    val innerPar = 16
 
-    //type T = FixPt[TRUE,_4,_12]
-    type T = Float
+    type T = FixPt[TRUE,_16,_16]
     val tileM = 16
     val tileN = 16
     val tileK = 16
@@ -393,22 +222,19 @@ object ProjectNN extends SpatialApp {
     val numTestImages = 10000.to[Int] // 200 for simulation
     val digits = 10.to[Int]
 
-    // For testing, I used the '_med' files
-    val W1_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/W1.csv",",")
-    val b1_data = loadCSV1D[T]("/home/akshayr2/ee109-project/ProjectHardware/b1.csv",",")
-    val W2_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/W2.csv",",")
-    val b2_data = loadCSV1D[T]("/home/akshayr2/ee109-project/ProjectHardware/b2.csv",",")
-    val test_data = loadCSV2D[T]("/home/akshayr2/ee109-project/ProjectHardware/mnist_test_images_28.csv",",")
-    val test_labels = loadCSV1D[Int]("/home/akshayr2/ee109-project/ProjectHardware/mnist_test_labels_28.csv",",")
+    val W1_data = loadCSV2D[T]("W1.csv",",")
+    val b1_data = loadCSV1D[T]("b1.csv",",")
+    val W2_data = loadCSV2D[T]("W2.csv",",")
+    val b2_data = loadCSV1D[T]("b2.csv",",")
+    val test_data = loadCSV2D[T]("mnist_test_images_28.csv",",")
+    val test_labels = loadCSV1D[Int]("mnist_test_labels_28.csv",",")
 
     val testImages = DRAM[T](numTestImages, picSize)
     val testLabels = DRAM[Int](numTestImages)
     val W1 = DRAM[T](nhidden_1, picSize) 
     val b1 = DRAM[T](nhidden_1)
     val W2 = DRAM[T](digits, nhidden_1)
-    val b2 = DRAM[T](digits)
-
-    val probs1 = DRAM[T](digits)    
+    val b2 = DRAM[T](digits)   
  
     println("Done Loading")
     setMem(testImages, test_data)
@@ -428,44 +254,40 @@ object ProjectNN extends SpatialApp {
       val W2_sram = SRAM[T](digits, nhidden_1)
       W2_sram load W2(0::digits, 0::nhidden_1)
 
-      val W1_neuron = SRAM[T](1,picSize)
-
       val errors = Reg[Int](0)
       val testlabels_sram = SRAM[Int](numTestImages)
       testlabels_sram load testLabels(0::numTestImages)
-      Foreach(1 by 1){k =>
+      Foreach(200 by 1){k =>
         val img_sram = SRAM[T](1, picSize)
         img_sram load testImages(k::k+1, 0::picSize)
         val label = Reg[Int](0)
         label := testlabels_sram(k)
 
         val inter = SRAM[T](nhidden_1)
-        Foreach(nhidden_1 by 1){ i =>
+        Foreach(nhidden_1 by 1 par midPar){ i =>
+          val W1_neuron = SRAM[T](1,picSize)
           W1_neuron load W1(i::i+1,0::picSize)
           val res = Reg[T](0)
-          Reduce(res)(picSize by 1){j =>
-            mux(W1_neuron(0,j) == 0.to[T] || img_sram(0,j) == 0.to[T], 0.to[T], W1_neuron(0,j) * img_sram(0,j))
+          Reduce(res)(picSize by 1 par innerPar){j =>
+             W1_neuron(0,j) * img_sram(0,j)
           }{_ + _}
           inter(i) = max(res.value + b1_sram(i), 0.to[T])
         }
 
         val probs = SRAM[T](digits)
-        Foreach(digits by 1){ i =>
+        Foreach(digits by 1 par digits){ i =>
           val res = Reg[T](0)
-          Reduce(res)(nhidden_1 by 1){j =>
-            mux(inter(j) == 0.to[T] || W2_sram(i,j) == 0.to[T], 0.to[T], W2_sram(i,j) * inter(j))
+          Reduce(res)(nhidden_1 by 1 par innerPar){j =>
+            W2_sram(i,j) * inter(j)
           }{_ + _}
           probs(i) = res.value + b2_sram(i)
         }
-        
-        probs1(0::digits) store probs
 
         val maxind = Reg.buffer[Int](0)
         val maxval = Reg.buffer[T](0)
         maxind := 0.to[Int]
         maxval := probs(0)
 	
-
         Sequential.Foreach(1 until digits by 1){ i =>
           val oldval = maxval.value
           maxval := mux(probs(i) > oldval, probs(i), oldval)
@@ -479,7 +301,5 @@ object ProjectNN extends SpatialApp {
     }
     val errorsResult = getArg(argErrorsOut)
     println("Errors: " + errorsResult)
-    val logit = getMem(probs1);
-    printArray(logit, "Logit");
   }
 }

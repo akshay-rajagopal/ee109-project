@@ -6,6 +6,7 @@ n = 400;
 %w_true = randn(n,1); % 'true' weight vector
 rho = 1/25;
 iters_train = 60000;
+%iters_train = 600;
 W = zeros(n,10);
 %w = zeros(n,1);
 %error_probs = zeros(1,iters);
@@ -23,7 +24,7 @@ for k = 1:iters_train
         if (1 - y*w.'*x > 0)
             g_k = g_k - x*y;
         end
-        alpha_k = 0.0001;
+        alpha_k = 0.001;
         if(y == 1)
            alpha_k = alpha_k * 5; 
         end
@@ -36,6 +37,7 @@ end
 incorrects = 0;
 results = zeros(10,10);
 iters_test = 10000;
+%iters_test = 100;
 for j = 1:iters_test
    x = images_test(:,j);
    maxval = W(:,1).'*x; maxind = 0;
