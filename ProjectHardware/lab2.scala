@@ -14,19 +14,19 @@ object ProjectSVM extends SpatialApp {
 
     val outerPar = 1
     val midPar = 2
-    val innerPar = 2
+    val innerPar = 32
 
-    type T = FixPt[TRUE,_8,_24]
+    type T = FixPt[TRUE,_5,_27]
     //type T = Float
     val tileM = 16
     val tileN = 16
     val tileK = 16
 
     val picSize = 400.to[Int]
-    val numTrainImages = 60000.to[Int] // 600 for simulation
-    val numTestImages = 10000.to[Int] // 100 for simulation
-    //val numTrainImages = 600.to[Int] // 600 for simulation
-    //val numTestImages = 100.to[Int] // 100 for simulation
+    val numTrainImages = 60000.to[Int] // Real value
+    val numTestImages = 10000.to[Int] // Real value
+    //val numTrainImages = 600.to[Int] // For simulation
+    //val numTestImages = 100.to[Int] // For simulation
     val digits = 10.to[Int]
 
     val rho = 0.04.to[T]
@@ -59,54 +59,66 @@ object ProjectSVM extends SpatialApp {
       trainlabels_sram load trainLabels(0::numTrainImages)
       val W_sram = SRAM[T](digits, picSize)
       W_sram load W(0::digits, 0::picSize)
-      Foreach(numTrainImages by 1){k =>
+      Sequential.Foreach(numTrainImages by 1){k =>
         val img_sram = SRAM[T](1,picSize)
         img_sram load trainImages(k::k+1, 0::picSize)
         val label = Reg[Int](0)
         label := trainlabels_sram(k)
-        Foreach(digits by 1) {i =>
+        Sequential.Foreach(digits by 1) {i =>
           val y = mux(i.to[Int] == label.value, 1.to[Int], -1.to[Int])
           //val alpha = mux(i.to[Int] == label, 10/k, 2/k)
           val alpha = mux(i.to[Int] == label.value, success_alpha, base_alpha)
           val ywx = Reg[T](0)
-          Reduce(ywx)(picSize by 1) {j =>
+          Reduce(ywx)(picSize by 1 par innerPar) {j =>
             y.to[T] * W_sram(i,j) * img_sram(0,j)
           }{_ + _}
           val select = 1.to[T] - ywx.value
           val gk1_sram = SRAM[T](picSize)
-          Foreach(picSize by 1){j =>
+          Foreach(picSize by 1 par innerPar){j =>
             gk1_sram(j) = mux(select > 0 , rho * W_sram(i,j) - y.to[T] * img_sram(0,j), rho * W_sram(i,j))
           }
-          Foreach(picSize by 1){j =>
+          Foreach(picSize by 1 par innerPar){j =>
             W_sram(i,j) = W_sram(i,j) - alpha * gk1_sram(j)
           }
         }
       }
       W(0::digits,0::picSize) store W_sram
-      Foreach(digits by 1){i=>println(W_sram(i,19))}
 
       val errors = Reg[Int](0)
       val testlabels_sram = SRAM[Int](numTestImages)
       testlabels_sram load testLabels(0::numTestImages)
-      Foreach(numTestImages by 1){k =>
-        val img_sram = SRAM[T](1, picSize)
-        img_sram load testImages(k::k+1, 0::picSize)
-        val label = Reg[Int](0)
-        label := testlabels_sram(k)
-        val maxind = Reg[Int](0)
-        val maxval = Reg.buffer[T](0)
-        Reduce(maxval)(picSize by 1){j =>
-          W_sram(0,j) * img_sram(0,j)
-        }{_ + _}
-	
+            
+      Sequential.Foreach(numTestImages by 1){ k =>
 
-        Sequential.Foreach(1 until digits by 1){ i =>
+        val img_sram = SRAM[T](1, picSize)
+        val label = Reg[Int](0)
+        val maxvalinit = Reg[T](0)
+        img_sram load testImages(k::k+1, 0::picSize)
+        label := testlabels_sram(k)
+
+        val probs = SRAM[T](digits)
+        Foreach(0 until digits by 1 par digits){i =>
           val res = Reg[T](0)
-          Reduce(res)(picSize by 1){j =>
+          Reduce(res)(picSize by 1 par innerPar){j =>
             W_sram(i,j) * img_sram(0,j)
-          }{_ + _}
-          maxval := mux(res.value >= maxval.value, res.value, maxval.value)
-          maxind := mux(res.value == maxval.value, i.to[Int], maxind.value)
+          }{_+_}
+          probs(i) = res.value
+        }
+
+        val maxind = Reg[Int](0)
+        val maxval = Reg[T](0)
+
+        Sequential.Foreach(0 until digits by 1){ i =>
+          if (i == 0) {
+            // init
+            maxval := probs(0)
+            maxind := 0.to[Int]
+          } else {
+            // otherwise
+            val oldval = maxval.value
+            maxval := mux(probs(i) >= oldval, probs(i), oldval)
+            maxind := mux(probs(i) >= oldval, i.to[Int], maxind.value)
+          }
         }
         errors := mux(maxind.value == label.value, errors.value, errors.value + 1)
       }
@@ -114,16 +126,8 @@ object ProjectSVM extends SpatialApp {
     }
 
     val accel_matrix = getMatrix(W)
-    //val gold_matrix = (0::args(0).to[Int], 0::args(1).to[Int]){(i,j) =>
-    //  Array.tabulate(args(2).to[Int]){k => a_data(i,k) * b_data(k,j)}.reduce{_+_}
-    //}
     val errorsResult = getArg(argErrorsOut)
     println("Errors: " + errorsResult)
-    //printMatrix(accel_matrix, "Received: ")
-    
-    //printMatrix(gold_matrix, "Wanted: ")
-    //val cksum = accel_matrix.zip(gold_matrix){_==_}.reduce{_&&_}
-    //println("PASS: " + cksum + "(Lab2Part5GEMM)")
   }
 }
 
