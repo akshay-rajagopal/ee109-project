@@ -1,0 +1,17 @@
+Fitter Status : Failed - Wed Jun  6 00:42:08 2018
+Quartus Prime Version : 17.1.0 Build 240 10/25/2017 SJ Pro Edition
+Revision Name : pr_alternate_fit
+Top-level Entity Name : ghrd_a10_top
+Family : Arria 10
+Device : 10AS066N3F40E2SG
+Timing Models : Final
+Logic utilization (in ALMs) : 197,933 / 251,680 ( 79 % )
+Total registers : 310919
+Total pins : 145 / 812 ( 18 % )
+Total virtual pins : 0
+Total block memory bits : 6,640,384 / 43,642,880 ( 15 % )
+Total RAM Blocks : 194 / 2,131 ( 9 % )
+Total DSP Blocks : 1,294 / 1,687 ( 77 % )
+Total HSSI RX channels : 0 / 48 ( 0 % )
+Total HSSI TX channels : 0 / 48 ( 0 % )
+Total PLLs : 50 / 96 ( 52 % )

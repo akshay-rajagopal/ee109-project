@@ -1,0 +1,515 @@
+[WARNING]: DELITE_NUM_THREADS undefined, defaulting to 1
+Executing with 1 thread(s)
+
+Note-[RT_BS] Larger stack needed
+  Note: Bumping stack limit from 8192 to 8193 Kbytes.
+
+Chronologic VCS simulator copyright 1991-2015
+Contains Synopsys proprietary information.
+Compiler version K-2015.09-SP2-7_Full64; Runtime version K-2015.09-SP2-7_Full64;  Jun  5 20:58 2018
+[SIM] Sim process started!
+[SIM] VPD Waveforms DISABLED
+[SIM] VCD Waveforms DISABLED
+Connection successful!
+== Loading device model file '/home/akshayr2/ee109-project/ProjectHardware/gen/ProjectSVM/verilog/DRAMSim2/ini/DDR3_micron_32M_8B_x4_sg125.ini' == 
+== Loading system model file '/home/akshayr2/ee109-project/ProjectHardware/gen/ProjectSVM/verilog/DRAMSim2/spatial.dram.ini' == 
+===== MemorySystem 0 =====
+CH. 0 TOTAL_STORAGE : 4096MB | 2 Ranks | 16 Devices per rank
+===== MemorySystem 1 =====
+CH. 1 TOTAL_STORAGE : 4096MB | 2 Ranks | 16 Devices per rank
+===== MemorySystem 2 =====
+CH. 2 TOTAL_STORAGE : 4096MB | 2 Ranks | 16 Devices per rank
+===== MemorySystem 3 =====
+CH. 3 TOTAL_STORAGE : 4096MB | 2 Ranks | 16 Devices per rank
+[SIM] MALLOC(960000), returning 1000 - eb600 (0x7fe3c7ffc000 - 0x7fe3c80e6600)
+[SIM] MALLOC(2400), returning ec000 - ec960 (0x7fe3ece14000 - 0x7fe3ece14960)
+[SIM] MALLOC(160000), returning ed000 - 114100 (0x7fe3eccc5000 - 0x7fe3eccec100)
+[SIM] MALLOC(400), returning 115000 - 115190 (0x7fe3ece13000 - 0x7fe3ece13190)
+[SIM] MALLOC(16000), returning 116000 - 119e80 (0x7fe3ece0f000 - 0x7fe3ece12e80)
+Allocate mem of size 600*400 at 0x1000
+Allocate mem of size 600 at 0xec000
+Allocate mem of size 100*400 at 0xed000
+Allocate mem of size 100 at 0x115000
+Allocate mem of size 10*400 at 0x116000
+Done Loading
+[SIM] Received memcpy request to 0x1000 (0x7fe3c7ffc000), size 960000
+Total bytes written: 960000
+Total bytes read: 960000
+Total bytes written: 2400
+[SIM] Received memcpy request to 0xec000 (0x7fe3ece14000), size 2400
+Total bytes read: 2400
+[SIM] Received memcpy request to 0xed000 (0x7fe3eccc5000), size 160000
+Total bytes written: 160000
+Total bytes read: 160000
+Total bytes written: 400
+[SIM] Received memcpy request to 0x115000 (0x7fe3ece13000), size 400
+Total bytes read: 400
+Total bytes written: 16000
+[SIM] Received memcpy request to 0x116000 (0x7fe3ece0f000), size 16000
+Total bytes read: 16000
+writing vis file to /home/akshayr2/ee109-project/ProjectHardware/gen/ProjectSVM/verilog/DRAMSim2/results/dramSimVCS/DDR3_micron_32M_8B_x4_sg125/4GB.4Ch.2R.scheme7.open_page.4096TQ.4096CQ.RtB.pRank.vis
+DRAMSim2 Clock Frequency =800000000Hz, CPU Clock Frequency=1000000000Hz
+	10000 cycles elapsed
+	20000 cycles elapsed
+	30000 cycles elapsed
+	40000 cycles elapsed
+	50000 cycles elapsed
+	60000 cycles elapsed
+	70000 cycles elapsed
+	80000 cycles elapsed
+	90000 cycles elapsed
+	100000 cycles elapsed
+	110000 cycles elapsed
+	120000 cycles elapsed
+	130000 cycles elapsed
+	140000 cycles elapsed
+	150000 cycles elapsed
+	160000 cycles elapsed
+	170000 cycles elapsed
+	180000 cycles elapsed
+	190000 cycles elapsed
+	200000 cycles elapsed
+	210000 cycles elapsed
+	220000 cycles elapsed
+	230000 cycles elapsed
+	240000 cycles elapsed
+	250000 cycles elapsed
+	260000 cycles elapsed
+	270000 cycles elapsed
+	280000 cycles elapsed
+	290000 cycles elapsed
+	300000 cycles elapsed
+	310000 cycles elapsed
+	320000 cycles elapsed
+	330000 cycles elapsed
+	340000 cycles elapsed
+	350000 cycles elapsed
+	360000 cycles elapsed
+	370000 cycles elapsed
+	380000 cycles elapsed
+	390000 cycles elapsed
+	400000 cycles elapsed
+	410000 cycles elapsed
+	420000 cycles elapsed
+	430000 cycles elapsed
+	440000 cycles elapsed
+	450000 cycles elapsed
+	460000 cycles elapsed
+	470000 cycles elapsed
+	480000 cycles elapsed
+	490000 cycles elapsed
+	500000 cycles elapsed
+	510000 cycles elapsed
+	520000 cycles elapsed
+	530000 cycles elapsed
+	540000 cycles elapsed
+	550000 cycles elapsed
+	560000 cycles elapsed
+	570000 cycles elapsed
+	580000 cycles elapsed
+	590000 cycles elapsed
+	600000 cycles elapsed
+	610000 cycles elapsed
+	620000 cycles elapsed
+	630000 cycles elapsed
+	640000 cycles elapsed
+	650000 cycles elapsed
+	660000 cycles elapsed
+	670000 cycles elapsed
+	680000 cycles elapsed
+	690000 cycles elapsed
+	700000 cycles elapsed
+	710000 cycles elapsed
+	720000 cycles elapsed
+	730000 cycles elapsed
+	740000 cycles elapsed
+	750000 cycles elapsed
+	760000 cycles elapsed
+	770000 cycles elapsed
+	780000 cycles elapsed
+	790000 cycles elapsed
+	800000 cycles elapsed
+	810000 cycles elapsed
+	820000 cycles elapsed
+	830000 cycles elapsed
+	840000 cycles elapsed
+	850000 cycles elapsed
+	860000 cycles elapsed
+	870000 cycles elapsed
+	880000 cycles elapsed
+	890000 cycles elapsed
+	900000 cycles elapsed
+	910000 cycles elapsed
+	920000 cycles elapsed
+	930000 cycles elapsed
+	940000 cycles elapsed
+	950000 cycles elapsed
+	960000 cycles elapsed
+	970000 cycles elapsed
+	980000 cycles elapsed
+	990000 cycles elapsed
+	1000000 cycles elapsed
+	1010000 cycles elapsed
+	1020000 cycles elapsed
+	1030000 cycles elapsed
+	1040000 cycles elapsed
+	1050000 cycles elapsed
+	1060000 cycles elapsed
+	1070000 cycles elapsed
+	1080000 cycles elapsed
+	1090000 cycles elapsed
+	1100000 cycles elapsed
+	1110000 cycles elapsed
+	1120000 cycles elapsed
+	1130000 cycles elapsed
+	1140000 cycles elapsed
+	1150000 cycles elapsed
+	1160000 cycles elapsed
+	1170000 cycles elapsed
+	1180000 cycles elapsed
+	1190000 cycles elapsed
+	1200000 cycles elapsed
+	1210000 cycles elapsed
+	1220000 cycles elapsed
+	1230000 cycles elapsed
+	1240000 cycles elapsed
+	1250000 cycles elapsed
+	1260000 cycles elapsed
+	1270000 cycles elapsed
+	1280000 cycles elapsed
+	1290000 cycles elapsed
+	1300000 cycles elapsed
+	1310000 cycles elapsed
+	1320000 cycles elapsed
+	1330000 cycles elapsed
+	1340000 cycles elapsed
+	1350000 cycles elapsed
+	1360000 cycles elapsed
+	1370000 cycles elapsed
+	1380000 cycles elapsed
+	1390000 cycles elapsed
+	1400000 cycles elapsed
+	1410000 cycles elapsed
+	1420000 cycles elapsed
+	1430000 cycles elapsed
+	1440000 cycles elapsed
+	1450000 cycles elapsed
+	1460000 cycles elapsed
+	1470000 cycles elapsed
+	1480000 cycles elapsed
+	1490000 cycles elapsed
+	1500000 cycles elapsed
+	1510000 cycles elapsed
+	1520000 cycles elapsed
+	1530000 cycles elapsed
+	1540000 cycles elapsed
+	1550000 cycles elapsed
+	1560000 cycles elapsed
+	1570000 cycles elapsed
+	1580000 cycles elapsed
+	1590000 cycles elapsed
+	1600000 cycles elapsed
+	1610000 cycles elapsed
+	1620000 cycles elapsed
+	1630000 cycles elapsed
+	1640000 cycles elapsed
+	1650000 cycles elapsed
+	1660000 cycles elapsed
+	1670000 cycles elapsed
+	1680000 cycles elapsed
+	1690000 cycles elapsed
+	1700000 cycles elapsed
+	1710000 cycles elapsed
+	1720000 cycles elapsed
+	1730000 cycles elapsed
+	1740000 cycles elapsed
+	1750000 cycles elapsed
+	1760000 cycles elapsed
+	1770000 cycles elapsed
+	1780000 cycles elapsed
+	1790000 cycles elapsed
+	1800000 cycles elapsed
+	1810000 cycles elapsed
+	1820000 cycles elapsed
+	1830000 cycles elapsed
+	1840000 cycles elapsed
+	1850000 cycles elapsed
+	1860000 cycles elapsed
+	1870000 cycles elapsed
+Design ran for 1873064 cycles, status = 1
+ ******* Debug regs *******
+
+	Last load streamId (tag) sent..........................: 00000004 (00000004)
+	Last load addr sent....................................: 00113ac0 (01129152)
+	Last load size sent....................................: 00000019 (00000025)
+	Last load streamId (tag) sent..........................: 00000004 (00000004)
+	Last load addr sent....................................: 00113ac0 (01129152)
+	Last load size sent....................................: 00000019 (00000025)
+	Last load streamId (tag) sent..........................: 00000004 (00000004)
+	Last load addr sent....................................: 00113ac0 (01129152)
+	Last load size sent....................................: 00000019 (00000025)
+	Last load streamId (tag) sent..........................: 00000004 (00000004)
+	Last load addr sent....................................: 00113ac0 (01129152)
+	Last load size sent....................................: 00000019 (00000025)
+	Last load streamId (tag) sent..........................: 00000004 (00000004)
+	Last load addr sent....................................: 00113ac0 (01129152)
+	Last load size sent....................................: 00000019 (00000025)
+	Last store streamId (tag) sent.........................: 00000005 (00000005)
+
+	Last store addr sent...................................: 00119840 (01153088)
+	Last store size sent...................................: 00000640 (00001600)
+	rdataFifo 0 enq........................................: 00000026 (00000038)
+	number of bad elements.................................: 00000000 (00000000)
+	m.io.deq...............................................: 00000005 (00000005)
+	m.io.enq...............................................: 00175bf5 (01530869)
+	rdataFifo 1 enq........................................: 00000b6e (00002926)
+	number of bad elements.................................: 00000000 (00000000)
+	m.io.deq...............................................: 00000000 (00000000)
+	m.io.enq...............................................: 00175bf9 (01530873)
+	rdataFifo 2 enq........................................: 00003a98 (00015000)
+	number of bad elements.................................: 00000000 (00000000)
+	m.io.deq...............................................: 00000000 (00000000)
+	m.io.enq...............................................: 00175bfd (01530877)
+	rdataFifo 3 enq........................................: 00000007 (00000007)
+	number of bad elements.................................: 00000000 (00000000)
+
+	m.io.deq...............................................: 00000007 (00000007)
+	m.io.enq...............................................: 002eb7e1 (03061729)
+	rdataFifo 4 enq........................................: 000009c4 (00002500)
+	number of bad elements.................................: 00000000 (00000000)
+	m.io.deq...............................................: 00000000 (00000000)
+	m.io.enq...............................................: 002eb7e5 (03061733)
+	wrespFifo 0 enq........................................: 0000000a (00000010)
+	Cycles.................................................: 001c94a9 (01873065)
+	rdata_from_dram0_0.....................................: 00000005 (00000005)
+	rdata_from_dram0_1.....................................: 00000000 (00000000)
+	rdata_from_dram0_2.....................................: 00000004 (00000004)
+	rdata_from_dram0_3.....................................: 00000001 (00000001)
+	rdata_from_dram0_4.....................................: 00000009 (00000009)
+	rdata_from_dram0_5.....................................: 00000002 (00000002)
+	rdata_from_dram0_6.....................................: 00000001 (00000001)
+	rdata_from_dram0_7.....................................: 00000003 (00000003)
+
+	rdata_from_dram0_8.....................................: 00000001 (00000001)
+	rdata_from_dram0_9.....................................: 00000004 (00000004)
+	rdata_from_dram0_10....................................: 00000003 (00000003)
+	rdata_from_dram0_11....................................: 00000005 (00000005)
+	rdata_from_dram0_12....................................: 00000003 (00000003)
+	rdata_from_dram0_13....................................: 00000006 (00000006)
+	rdata_from_dram0_14....................................: 00000001 (00000001)
+	rdata_from_dram0_15....................................: 00000007 (00000007)
+	rdata_from_dram1_0.....................................: 00000002 (00000002)
+	rdata_from_dram1_1.....................................: 00000008 (00000008)
+	rdata_from_dram1_2.....................................: 00000006 (00000006)
+	rdata_from_dram1_3.....................................: 00000009 (00000009)
+	rdata_from_dram1_4.....................................: 00000004 (00000004)
+	rdata_from_dram1_5.....................................: 00000000 (00000000)
+	rdata_from_dram1_6.....................................: 00000009 (00000009)
+	rdata_from_dram1_7.....................................: 00000001 (00000001)
+
+	rdata_from_dram1_8.....................................: 00000001 (00000001)
+	rdata_from_dram1_9.....................................: 00000002 (00000002)
+	rdata_from_dram1_10....................................: 00000004 (00000004)
+	rdata_from_dram1_11....................................: 00000003 (00000003)
+	rdata_from_dram1_12....................................: 00000002 (00000002)
+	rdata_from_dram1_13....................................: 00000007 (00000007)
+	rdata_from_dram1_14....................................: 00000003 (00000003)
+	rdata_from_dram1_15....................................: 00000008 (00000008)
+	wdata_from_dram0_0.....................................: fffffcd5 (-0000811)
+	wdata_from_dram0_1.....................................: ffffd88f (-0010097)
+	wdata_from_dram0_2.....................................: ffff6c71 (-0037775)
+	wdata_from_dram0_3.....................................: fffe5de0 (-0107040)
+	wdata_from_dram0_4.....................................: fffd8097 (-0163689)
+	wdata_from_dram0_5.....................................: fffd8a95 (-0161131)
+	wdata_from_dram0_6.....................................: fffd9f86 (-0155770)
+	wdata_from_dram0_7.....................................: fffe4833 (-0112589)
+
+	wdata_from_dram0_8.....................................: fffe9932 (-0091854)
+	wdata_from_dram0_9.....................................: ffffb278 (-0019848)
+	wdata_from_dram0_10....................................: 0000499e (00018846)
+	wdata_from_dram0_11....................................: 00006199 (00024985)
+	wdata_from_dram0_12....................................: ffffcc51 (-0013231)
+	wdata_from_dram0_13....................................: 00007d05 (00032005)
+	wdata_from_dram0_14....................................: ffff8440 (-0031680)
+	wdata_from_dram0_15....................................: fffdc94a (-0145078)
+	Actual values on wdata.bits............................: fffffcd5 (-0000811)
+	wdata_from_dram1_0.....................................: fffca424 (-0220124)
+	wdata_from_dram1_1.....................................: fffcaf17 (-0217321)
+	wdata_from_dram1_2.....................................: fffe57a2 (-0108638)
+	wdata_from_dram1_3.....................................: fffe880c (-0096244)
+	wdata_from_dram1_4.....................................: ffffc9c4 (-0013884)
+	wdata_from_dram1_5.....................................: ffff3d52 (-0049838)
+	wdata_from_dram1_6.....................................: fffe6507 (-0105209)
+
+	wdata_from_dram1_7.....................................: fffd27d3 (-0186413)
+	wdata_from_dram1_8.....................................: fffc3045 (-0249787)
+	wdata_from_dram1_9.....................................: fffcd466 (-0207770)
+	wdata_from_dram1_10....................................: fffe3a6c (-0116116)
+	wdata_from_dram1_11....................................: 0001cfdc (00118748)
+	wdata_from_dram1_12....................................: 0004a274 (00303732)
+	wdata_from_dram1_13....................................: 0006d470 (00447600)
+	wdata_from_dram1_14....................................: 000a59ba (00678330)
+	wdata_from_dram1_15....................................: 000edae6 (00973542)
+	Actual values on wdata.bits............................: fffca424 (-0220124)
+	# DRAM Commands Issued.................................: 000002d2 (00000722)
+	Total cycles w/ 1+ cmds queued up......................: 00001290 (00004752)
+	# Read Commands Sent...................................: 000002c8 (00000712)
+	 # from Accel load stream 0............................: 00000001 (00000001)
+	 # from Fringe load stream 0...........................: 00000001 (00000001)
+	 # attempted from Accel load stream (cycles valid) 0...: 00000001 (00000001)
+
+	 # from Accel load stream 1............................: 0000000a (00000010)
+	 # from Fringe load stream 1...........................: 0000000a (00000010)
+	 # attempted from Accel load stream (cycles valid) 1...: 0000000a (00000010)
+	 # from Accel load stream 2............................: 00000258 (00000600)
+	 # from Fringe load stream 2...........................: 00000258 (00000600)
+	 # attempted from Accel load stream (cycles valid) 2...: 00000258 (00000600)
+	 # from Accel load stream 3............................: 00000001 (00000001)
+	 # from Fringe load stream 3...........................: 00000001 (00000001)
+	 # attempted from Accel load stream (cycles valid) 3...: 00000001 (00000001)
+	 # from Accel load stream 4............................: 00000064 (00000100)
+	 # from Fringe load stream 4...........................: 00000064 (00000100)
+	 # attempted from Accel load stream (cycles valid) 4...: 00000064 (00000100)
+	# Write Commands Sent..................................: 0000000a (00000010)
+	 # from Accel store stream 0...........................: 0000000a (00000010)
+	 # from Fringe store stream 0..........................: 0000000a (00000010)
+	 # attempted from Accel store stream (cycles valid) 0..: 0000000a (00000010)
+
+	# Read Responses Acknowledged..........................: 00004583 (00017795)
+	# RResp rejected by ready..............................: 00000a74 (00002676)
+	Cycles RResp ready and idle (~valid)...................: 001c44a3 (01852579)
+	 # from load stream 0..................................: 00000026 (00000038)
+	 # from load stream 1..................................: 000000fa (00000250)
+	 # from load stream 2..................................: 00003a98 (00015000)
+	 # from load stream 3..................................: 00000007 (00000007)
+	 # from load stream 4..................................: 000009c4 (00002500)
+	# Write Responses Acknowledged.........................: 0000000a (00000010)
+	# WResp rejected by ready..............................: 00000000 (00000000)
+	Cycles WResp ready and idle (~valid)...................: 001c949f (01873055)
+	 # from store stream 0.................................: 0000000a (00000010)
+	(load) fifo converter 0 # cycles full..................: 00000000 (00000000)
+	(load) fifo converter 0 # cycles almostFull............: 00000000 (00000000)
+	(load) fifo converter 0 # cycles empty.................: 001c9370 (01872752)
+	(load) fifo converter 0 # cycles almostEmpty...........: 00000001 (00000001)
+
+	(load) fifo converter 0 # cycles enqVld................: 00000026 (00000038)
+	(load) fifo converter 0 # cycles streamId == 0.........: 00000320 (00000800)
+	(load) # cycles rresp == valid.........................: 00004ff7 (00020471)
+	(load) fifo converter 1 # cycles full..................: 00000a83 (00002691)
+	(load) fifo converter 1 # cycles almostFull............: 000000c2 (00000194)
+	(load) fifo converter 1 # cycles empty.................: 001c861a (01869338)
+	(load) fifo converter 1 # cycles almostEmpty...........: 00000002 (00000002)
+	(load) fifo converter 1 # cycles enqVld................: 00000b6e (00002926)
+	(load) fifo converter 1 # cycles streamId == 1.........: 00001144 (00004420)
+	(load) # cycles rresp == valid.........................: 00004ff7 (00020471)
+	(load) fifo converter 2 # cycles full..................: 00000000 (00000000)
+	(load) fifo converter 2 # cycles almostFull............: 00000000 (00000000)
+	(load) fifo converter 2 # cycles empty.................: 0018ec6c (01633388)
+	(load) fifo converter 2 # cycles almostEmpty...........: 000002f8 (00000760)
+	(load) fifo converter 2 # cycles enqVld................: 00003a98 (00015000)
+	(load) fifo converter 2 # cycles streamId == 2.........: 001b6384 (01794948)
+
+	(load) # cycles rresp == valid.........................: 00004ff7 (00020471)
+	(load) fifo converter 3 # cycles full..................: 00000000 (00000000)
+	(load) fifo converter 3 # cycles almostFull............: 00000000 (00000000)
+	(load) fifo converter 3 # cycles empty.................: 001c958a (01873290)
+	(load) fifo converter 3 # cycles almostEmpty...........: 00000001 (00000001)
+	(load) fifo converter 3 # cycles enqVld................: 00000007 (00000007)
+	(load) fifo converter 3 # cycles streamId == 3.........: 00000154 (00000340)
+	(load) # cycles rresp == valid.........................: 00004ff7 (00020471)
+	(load) fifo converter 4 # cycles full..................: 00000000 (00000000)
+	(load) fifo converter 4 # cycles almostFull............: 00000000 (00000000)
+	(load) fifo converter 4 # cycles empty.................: 001bf9c8 (01833416)
+	(load) fifo converter 4 # cycles almostEmpty...........: 0000007f (00000127)
+	(load) fifo converter 4 # cycles enqVld................: 000009c4 (00002500)
+	(load) fifo converter 4 # cycles streamId == 4.........: 00011bec (00072684)
+	(load) # cycles rresp == valid.........................: 00004ff7 (00020471)
+	(load) # cycles streamId >= last.......................: 000000e6 (00000230)
+
+	(load) last streamId...................................: 00000004 (00000004)
+	(store) fifo converter 0 # cycles full.................: 00000000 (00000000)
+	(store) fifo converter 0 # cycles almostFull...........: 00000000 (00000000)
+	(store) fifo converter 0 # cycles empty................: 001c9426 (01872934)
+	(store) fifo converter 0 # cycles almostEmpty..........: 000001f4 (00000500)
+	RResp valid enqueued somewhere.........................: 00004ff7 (00020471)
+	Rresp valid and ready..................................: 00004583 (00017795)
+	Resp valid and ready and enqueued somewhere............: 00004583 (00017795)
+	Resp valid and not ready...............................: 00000a74 (00002676)
+	num wdata transferred (wvalid & wready)................: 000000fa (00000250)
+ **************************
+Kernel done, test run time = 1015 ms
+  x29996 - 1873062 (1873062 / 0) [0 iters/parent execution]
+    x24919 - 795 (795 / 1) [1 iters/parent execution]
+      x24885 - 9 (9 / 1) [1 iters/parent execution]
+      x24918 - 791 (791 / 1) [1 iters/parent execution]
+        x24900 - 7 (7 / 1) [1 iters/parent execution]
+        x24917 - 608 (608 / 1) [1 iters/parent execution]
+    x24957 - 4379 (4379 / 1) [1 iters/parent execution]
+      x24944 - 16 (168 / 10) [10 iters/parent execution]
+      x24956 - 402 (4027 / 10) [10 iters/parent execution]
+    x26352 - 1790793 (1790793 / 1) [1 iters/parent execution]
+      x24962 - 5 (3599 / 600) [600 iters/parent execution]
+      x24996 - 598 (359137 / 600) [600 iters/parent execution]
+        x24984 - 16 (10198 / 600) [1 iters/parent execution]
+        x24995 - 400 (240000 / 600) [1 iters/parent execution]
+      x25001 - 7 (4798 / 600) [600 iters/parent execution]
+      x26351 - 2372 (1423224 / 600) [600 iters/parent execution]
+        x25019 - 6 (41999 / 6000) [10 iters/parent execution]
+        x25490 - 39 (239998 / 6000) [10 iters/parent execution]
+        x25499 - 6 (41998 / 6000) [10 iters/parent execution]
+        x25957 - 26 (161998 / 6000) [10 iters/parent execution]
+        x26350 - 155 (935998 / 6000) [10 iters/parent execution]
+    x26390 - 4205 (4205 / 1) [1 iters/parent execution]
+      x26377 - 16 (168 / 10) [10 iters/parent execution]
+      x26386 - 405 (4058 / 10) [10 iters/parent execution]
+      x26389 - 1 (10 / 10) [10 iters/parent execution]
+    x26473 - 295 (295 / 1) [1 iters/parent execution]
+      x26439 - 9 (9 / 1) [1 iters/parent execution]
+      x26472 - 293 (293 / 1) [1 iters/parent execution]
+        x26454 - 7 (7 / 1) [1 iters/parent execution]
+        x26471 - 112 (112 / 1) [1 iters/parent execution]
+    x29992 - 72551 (72551 / 1) [1 iters/parent execution]
+      x26479 - 5 (599 / 100) [100 iters/parent execution]
+      x26513 - 599 (59999 / 100) [100 iters/parent execution]
+        x26501 - 16 (1698 / 100) [1 iters/parent execution]
+        x26512 - 400 (40000 / 100) [1 iters/parent execution]
+      x26518 - 7 (798 / 100) [100 iters/parent execution]
+      x29941 - 48 (4824 / 100) [100 iters/parent execution]
+        x29909 - 37 (3799 / 100) [1 iters/parent execution]
+          x26866 - 33 (3399 / 100) [1 iters/parent execution]
+          x27204 - 33 (3399 / 100) [1 iters/parent execution]
+          x27542 - 33 (3399 / 100) [1 iters/parent execution]
+          x27880 - 33 (3399 / 100) [1 iters/parent execution]
+          x28218 - 33 (3399 / 100) [1 iters/parent execution]
+          x28556 - 33 (3399 / 100) [1 iters/parent execution]
+          x28894 - 33 (3399 / 100) [1 iters/parent execution]
+          x29232 - 33 (3399 / 100) [1 iters/parent execution]
+          x29570 - 33 (3399 / 100) [1 iters/parent execution]
+          x29908 - 33 (3399 / 100) [1 iters/parent execution]
+        x29940 - 7 (798 / 100) [1 iters/parent execution]
+          x29912 - 5 (598 / 100) [1 iters/parent execution]
+          x29915 - 5 (598 / 100) [1 iters/parent execution]
+          x29918 - 5 (598 / 100) [1 iters/parent execution]
+          x29921 - 5 (598 / 100) [1 iters/parent execution]
+          x29924 - 5 (598 / 100) [1 iters/parent execution]
+          x29927 - 5 (598 / 100) [1 iters/parent execution]
+          x29930 - 5 (598 / 100) [1 iters/parent execution]
+          x29933 - 5 (598 / 100) [1 iters/parent execution]
+          x29936 - 5 (598 / 100) [1 iters/parent execution]
+          x29939 - 5 (598 / 100) [1 iters/parent execution]
+      x29981 - 56 (5698 / 100) [100 iters/parent execution]
+        x29980 - 56 (5698 / 100) [1 iters/parent execution]
+          x29954 - 11 (1198 / 100) [1 iters/parent execution]
+          x29977 - 45 (4500 / 100) [1 iters/parent execution]
+      x29991 - 5 (598 / 100) [100 iters/parent execution]
+    x29995 - 4 (4 / 1) [1 iters/parent execution]
+Total bytes written: 16000
+Total bytes read: 16000
+Errors: 34
+[SIM] FIN received, terminating
+Received SIGHUP (signal 1), exiting.
+           V C S   S i m u l a t i o n   R e p o r t 
+Time: 3747440000 ps
+CPU Time:   1014.620 seconds;       Data structure size:  92.4Mb
+Tue Jun  5 21:15:51 2018
+Realistic DRAM Simulation
